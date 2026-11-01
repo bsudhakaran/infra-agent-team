@@ -1,0 +1,33 @@
+{
+  "provider": "aws",
+  "region": "us-east-1",
+  "currency": "USD",
+  "as_of": "2026-10",
+  "note": "Approximate public on-demand list prices, free tier ignored (conservative). Verify against the AWS Pricing Calculator before relying on them; add regions by copying this file as aws_<region>.json.",
+  "fixed_hourly": {
+    "aws_instance": {"by_attr": "instance_type", "prices": {"t3.nano": 0.0052, "t3.micro": 0.0104, "t3.small": 0.0208, "t3.medium": 0.0416, "t3.large": 0.0832, "m5.large": 0.096}, "default": 0.0416},
+    "aws_db_instance": {"by_attr": "instance_class", "prices": {"db.t3.micro": 0.017, "db.t3.small": 0.034, "db.t3.medium": 0.068, "db.t4g.micro": 0.016}, "default": 0.068},
+    "aws_elasticache_cluster": {"by_attr": "node_type", "prices": {"cache.t3.micro": 0.017, "cache.t4g.micro": 0.016}, "default": 0.034},
+    "aws_nat_gateway": {"default": 0.045},
+    "aws_lb": {"default": 0.0225},
+    "aws_alb": {"default": 0.0225},
+    "aws_eip": {"default": 0.005},
+    "aws_eks_cluster": {"default": 0.10},
+    "aws_vpc_endpoint": {"default": 0.01},
+    "aws_ec2_client_vpn_endpoint": {"default": 0.10}
+  },
+  "usage": {
+    "aws_lambda_function": {"per_million_requests": 0.20, "per_gb_second": 0.0000166667},
+    "aws_apigatewayv2_api": {"per_million_requests": 1.00},
+    "aws_dynamodb_table": {"per_million_writes": 0.625, "per_million_reads": 0.125, "per_gb_month": 0.25},
+    "aws_cloudwatch_log_group": {"per_gb_ingested": 0.50, "per_gb_month": 0.03},
+    "aws_s3_bucket": {"per_gb_month": 0.023, "per_thousand_requests": 0.0004}
+  },
+  "free": [
+    "aws_iam_role", "aws_iam_role_policy", "aws_iam_policy", "aws_iam_role_policy_attachment",
+    "aws_lambda_permission", "aws_apigatewayv2_integration", "aws_apigatewayv2_route", "aws_apigatewayv2_stage",
+    "aws_security_group", "aws_vpc", "aws_subnet", "aws_route_table", "aws_route_table_association",
+    "aws_internet_gateway", "aws_s3_bucket_policy", "aws_s3_bucket_public_access_block"
+  ],
+  "cost_explorer_request_usd": 0.01
+}

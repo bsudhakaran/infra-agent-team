@@ -1,0 +1,32 @@
+# Copy to config/clouds.yaml. This file holds connection DEFINITIONS and REFERENCES to
+# credentials - never secret values. The Credential agent rejects literal secrets.
+# Without a clouds.yaml, the default connection is `local` (offline emulator).
+
+default: aws-dev
+
+connections:
+  aws-dev:
+    provider: aws
+    region: us-east-1
+    auth:
+      type: profile            # profile (incl. SSO profiles) | env (AWS_ACCESS_KEY_ID/...)
+      profile: iat-dev
+    # Recommended: the base identity may ONLY assume this scoped deployer role.
+    # Temporary 1h credentials are minted per run. See config/iam/deployer-policy.json
+    role_arn: arn:aws:iam::123456789012:role/iat-deployer
+    # Hard guard: refuse to deploy if the credentials resolve to any other account.
+    allowed_account_ids: ["123456789012"]
+
+  gcp-dev:
+    provider: gcp
+    project: my-gcp-project
+    region: us-central1
+    auth:
+      type: adc                # adc (gcloud auth application-default login) | service_account_file
+      # credentials_file: ~/keys/iat-deployer.json
+
+  azure-dev:
+    provider: azure
+    region: eastus
+    auth:
+      type: env                # ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID

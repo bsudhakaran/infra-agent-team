@@ -1,0 +1,17 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e ".[dev]" "moto[sts,resourcegroupstaggingapi,cloudwatch]"
+      - run: pytest -q
+      - name: Offline end-to-end demo (mock LLM, local emulator)
+        run: iat deploy "Deploy a small AWS UI that accepts inputs and reports" --yes && iat cost && iat destroy --yes
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform blueprint validate
+        working-directory: infra_agent_team/blueprints/aws_small_ui/infra
+        run: terraform fmt -check && terraform init -backend=false && terraform validate

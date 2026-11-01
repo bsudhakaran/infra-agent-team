@@ -1,0 +1,36 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ServerlessAppResources",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:*",
+        "apigateway:*",
+        "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable", "dynamodb:UpdateTable",
+        "dynamodb:DescribeContinuousBackups", "dynamodb:UpdateContinuousBackups", "dynamodb:DescribeTimeToLive",
+        "dynamodb:ListTagsOfResource", "dynamodb:TagResource", "dynamodb:UntagResource",
+        "logs:CreateLogGroup", "logs:DeleteLogGroup", "logs:DescribeLogGroups", "logs:PutRetentionPolicy",
+        "logs:ListTagsForResource", "logs:ListTagsLogGroup", "logs:TagResource", "logs:TagLogGroup", "logs:UntagResource"
+      ],
+      "Resource": "*",
+      "Condition": { "StringEquals": { "aws:RequestedRegion": ["us-east-1"] } }
+    },
+    {
+      "Sid": "OnlyIatPrefixedRoles",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole", "iam:DeleteRole", "iam:GetRole", "iam:TagRole", "iam:UntagRole",
+        "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies", "iam:ListInstanceProfilesForRole", "iam:PassRole"
+      ],
+      "Resource": "arn:aws:iam::*:role/iat-*"
+    },
+    {
+      "Sid": "CostAgentReadOnly",
+      "Effect": "Allow",
+      "Action": ["cloudwatch:GetMetricStatistics", "tag:GetResources", "ce:GetCostAndUsage", "sts:GetCallerIdentity"],
+      "Resource": "*"
+    }
+  ]
+}

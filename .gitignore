@@ -1,0 +1,10 @@
+.iat/
+config/clouds.yaml
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.terraform/
+*.tfstate*
+tfplan

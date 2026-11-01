@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__APP_TITLE__</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --muted:#5d6676; --line:#dfe3ea; --accent:#2457d6; --ok:#13795b; --err:#b42318; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111418; --card:#1a1f26; --ink:#e7eaf0; --muted:#9aa4b2; --line:#2b323c; --accent:#7aa2ff; --ok:#4cc38a; --err:#ff7a70; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:24px; margin:0 0 4px; } p.sub { color:var(--muted); margin:0 0 20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:16px; }
+  label { display:block; font-weight:600; margin:8px 0 4px; }
+  select, textarea, button { font:inherit; width:100%; border-radius:8px; border:1px solid var(--line); padding:10px; background:var(--bg); color:var(--ink); }
+  textarea { min-height:90px; resize:vertical; }
+  button { background:var(--accent); color:#fff; border:none; font-weight:600; margin-top:12px; cursor:pointer; }
+  button:disabled { opacity:.6; }
+  #result { margin-top:12px; padding:10px; border-radius:8px; background:var(--bg); white-space:pre-wrap; word-break:break-word; min-height:1.5em; }
+  .ok { color:var(--ok); } .err { color:var(--err); }
+  .hint { color:var(--muted); font-size:13px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:6px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .stats { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:8px; }
+  .stat b { display:block; font-size:22px; }
+  .row { display:flex; justify-content:space-between; align-items:center; }
+  .row button { width:auto; margin:0; padding:6px 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>__APP_TITLE__</h1>
+  <p class="sub">__APP_DESCRIPTION__</p>
+
+  <section class="card">
+    <form id="f">
+      <label for="op">Operation</label>
+      <select id="op" name="operation" required></select>
+      <div id="opdesc" class="hint"></div>
+      <label for="input">Input</label>
+      <textarea id="input" name="input" maxlength="5000" required placeholder="Type your input"></textarea>
+      <button id="go" type="submit">Run</button>
+    </form>
+    <div id="result" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <div class="row"><h2 style="font-size:18px;margin:0">Report</h2><button id="refresh" type="button">Refresh</button></div>
+    <div class="stats" id="stats"></div>
+    <table><thead><tr><th>Operation</th><th>Input</th><th>Result</th></tr></thead><tbody id="recent"></tbody></table>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+let ops = [];
+function cell(text) { const td = document.createElement("td"); td.textContent = text; return td; }
+
+async function loadOps() {
+  const r = await fetch("api/operations"); const j = await r.json(); ops = j.operations;
+  $("op").replaceChildren(...ops.map(o => { const e = document.createElement("option"); e.value = o.name; e.textContent = o.label; return e; }));
+  showDesc();
+}
+function showDesc() { const o = ops.find(x => x.name === $("op").value); $("opdesc").textContent = o ? o.description : ""; }
+
+async function loadReport() {
+  const r = await fetch("api/report"); const j = await r.json();
+  const stats = [["Total", j.total], ["Errors", j.errors], ...Object.entries(j.by_operation)];
+  $("stats").replaceChildren(...stats.map(([k, v]) => { const d = document.createElement("div"); d.className = "stat"; const b = document.createElement("b"); b.textContent = v; d.append(b, k); return d; }));
+  $("recent").replaceChildren(...j.recent.map(i => { const tr = document.createElement("tr"); tr.append(cell(i.operation), cell(i.input), cell(JSON.stringify(i.result))); return tr; }));
+}
+
+$("op").addEventListener("change", showDesc);
+$("refresh").addEventListener("click", loadReport);
+$("f").addEventListener("submit", async (e) => {
+  e.preventDefault(); $("go").disabled = true; $("result").className = ""; $("result").textContent = "Running...";
+  try {
+    const r = await fetch("api/submit", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ operation: $("op").value, input: $("input").value }) });
+    const j = await r.json();
+    if (r.ok) { $("result").className = "ok"; $("result").textContent = JSON.stringify(j.result, null, 2); }
+    else { $("result").className = "err"; $("result").textContent = j.error || ("HTTP " + r.status); }
+    loadReport();
+  } catch (err) { $("result").className = "err"; $("result").textContent = String(err); }
+  finally { $("go").disabled = false; }
+});
+loadOps(); loadReport();
+</script>
+</body>
+</html>
