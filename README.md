@@ -280,3 +280,12 @@ CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs the tests, then a
 - Cost forecasts use the bundled price tables and an assumed usage profile. They are estimates, not quotes.
 - Cost to date comes from CloudWatch metrics. Cost Explorer (`--billing`) data lags by about 24 hours.
 - A local deploy is in-process only. It stops when the `iat` process exits, unless you keep it running with `--serve`.
+
+
+Sample pytest result:
+<img width="1205" height="205" alt="image" src="https://github.com/user-attachments/assets/0005ad25-ff5d-4d1e-a06d-22a2f3377ddd" />
+
+Sample Result:
+<img width="1543" height="405" alt="image" src="https://github.com/user-attachments/assets/c6e9543b-7efb-4416-b493-b73c11a1f34c" />
+
+
